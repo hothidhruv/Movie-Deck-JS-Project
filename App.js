@@ -143,20 +143,43 @@ const showFavoritMovie = (favMoviesName) => {
                                 <i class="favorite-icon fa-solid fa-heart fa-2xl heart" id="${title}"></i>
                             </section> `;
 
-                            const removeWhistlistBtn = listItem.querySelector(".heart");
-                            removeWhistlistBtn.addEventListener("click",(event)=>{
-                                const {id} = event.target;
-                                removeMovieNameToLocalStorage(id);
-                                fetchWishlistMovies();
-                            })
-                    
-        movieList.appendChild(listItem);    
+    const removeWhistlistBtn = listItem.querySelector(".heart");
+    removeWhistlistBtn.addEventListener("click", (event) => {
+        const { id } = event.target;
+        removeMovieNameToLocalStorage(id);
+        fetchWishlistMovies();
+    })
+
+    movieList.appendChild(listItem);
 }
+
+
+// search for movies
+const searchMovies = async (searchMovie) => {
+    try {
+        const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${searchMovie}&api_key=f531333d637d0c44abc85b3e74db2186&language=en-US&page=1`);
+        const result = await response.json();
+        movies = result.results;
+        renderMovies(movies);
+    
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+const searchButton = document.getElementById("search-button");
+const searchInput = document.getElementById("search-input");
+
+searchButton.addEventListener("click", () => {
+    searchMovies(searchInput.value);
+})
+
+
 
 
 const getMovieByName = async (movieName) => {
     try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie?query=${movieName}&api_key=f531333d637d0c44abc85b3e74db2186&language=en-US&page=1`);
+        const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${movieName}&api_key=f531333d637d0c44abc85b3e74db2186&language=en-US&page=1`);
         const result = await response.json();
         return result.results[0];
     }
@@ -166,9 +189,9 @@ const getMovieByName = async (movieName) => {
 }
 
 const fetchWishlistMovies = async () => {
-    movieList.innerHTML="";
+    movieList.innerHTML = "";
     const movieNameList = getMovieNameFromLocalStoage();
-    for (let i=0; i<movieNameList.length; i++) {
+    for (let i = 0; i < movieNameList.length; i++) {
         const movieName = movieNameList[i];
         let movieDataFromName = await getMovieByName(movieName);
         showFavoritMovie(movieDataFromName);
